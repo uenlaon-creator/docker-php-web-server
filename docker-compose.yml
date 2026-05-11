@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # 1. 웹 서버 서비스 (PHP + Apache)
+  web:
+    build: .
+    container_name: php-web-server
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db  # DB가 먼저 켜진 후 웹 서버가 켜지도록 설정
+
+  # 2. 데이터베이스 서비스 (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: my_database
+      MYSQL_ROOT_PASSWORD: password123  # 실제 서비스에선 더 복잡하게 설정해야 함
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/var/lib/mysql
+
+volumes:
+  db_data:  # 컨테이너를 지워도 DB 데이터는 남도록 보관함 설정
+
+services:
+  web:
+    build: .
+    # ... 기존 설정들 ...
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'     # CPU 점유율을 50%로 제한
+          memory: 512M    # 메모리를 512MB로 제한
